@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import static javax.swing.JOptionPane.showMessageDialog;
+
 
 
 public class Chess 
@@ -58,8 +60,6 @@ public class Chess
 
         Board board = new Board();
 
-        System.out.println(board.toString());
-
         while (!board.isDraw() && !board.isMated() && !board.isInsufficientMaterial() && !board.isStaleMate()) {
 
             if (GUI.moveComplete) {
@@ -84,25 +84,27 @@ public class Chess
                         
                 }
 
-                System.out.println(board.toString());
-
                 if (board.isDraw() || board.isMated() || board.isInsufficientMaterial() || board.isStaleMate()) {
 
-                    if (board.isDraw())
-                        System.out.println("Draw!");
-                    else if (board.isMated())
-                        System.out.println("Checkmate!");
-                    else if (board.isInsufficientMaterial())
-                        System.out.println("Insufficient Material!");
-                    else if (board.isStaleMate())
-                        System.out.println("Stalemate!");
+                    if (board.isDraw()) {
+                        showMessageDialog(null, "Draw!");
+                    }
+                    else if (board.isMated()) {
+                        showMessageDialog(null, "Checkmate!");
+                    }
+                    else if (board.isInsufficientMaterial()) {
+                        showMessageDialog(null, "Insufficient Material!");
+                    }
+                    else if (board.isStaleMate()) {
+                        showMessageDialog(null, "Stalemate!");
+                    }
                     
                     TimeUnit.MINUTES.sleep(1);
                     System.exit(1);
 
                 }
 
-                String bestMove = minimaxRoot(3, board, false);
+                String bestMove = minimaxRoot(4, board, false);
 
                 board.doMove(bestMove);
 
@@ -122,8 +124,6 @@ public class Chess
                         GUIPiece.getGUIPiece(7,0).move(5,0);
                 }
 
-                System.out.println(board.toString());
-
                 GUI.moveComplete = false;
             
             }
@@ -131,22 +131,25 @@ public class Chess
         }
 
         if (board.isDraw())
-            System.out.println("Draw!");
+            showMessageDialog(null, "Draw!");
+            
         else if (board.isMated())
-            System.out.println("Checkmate!");
+            showMessageDialog(null, "CheckMate!");
+
         else if (board.isInsufficientMaterial())
-            System.out.println("Insufficient Material!");
+            showMessageDialog(null, "Insufficient Material!");
+
         else if (board.isStaleMate())
-            System.out.println("Stalemate!");
-        
+            showMessageDialog(null, "Stalemate!");
+
         TimeUnit.MINUTES.sleep(1);
         System.exit(1);
 
     }
 
-    static int evaluate(Board board) {
+    static double evaluate(Board board) {
 
-        int sum = 0;
+        double sum = 0;
 
         double[][] pawnEvalWhite =
         {
@@ -328,13 +331,13 @@ public class Chess
     static String minimaxRoot(int depth, Board board, boolean isMaximisingPlayer) {
 
         List<Move> moves = board.legalMoves();
-        int bestMove = Integer.MIN_VALUE;
+        double bestMove = Double.MIN_VALUE;
         String bestMoveFound = moves.get(0).toString();
     
         for(int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
             board.doMove(move);
-            int value = minimax(depth - 1, board, !isMaximisingPlayer);
+            double value = minimax(depth - 1, board, !isMaximisingPlayer);
             board.undoMove();
             if(value >= bestMove) {
                 bestMove = value;
@@ -345,7 +348,7 @@ public class Chess
     }
     
     static int positionCount = 0;
-    static int minimax(int depth, Board board, boolean isMaximisingPlayer) {
+    static double minimax(int depth, Board board, boolean isMaximisingPlayer) {
         positionCount++;
         if (depth == 0)
             return -1*evaluate(board);
@@ -353,7 +356,7 @@ public class Chess
         List<Move> moves = board.legalMoves();
     
         if (isMaximisingPlayer) {
-            int bestMove = Integer.MIN_VALUE;
+            double bestMove = Double.MIN_VALUE;
             for (int i = 0; i < moves.size(); i++) {
                 board.doMove(moves.get(i));
                 bestMove = Math.max(bestMove, minimax(depth - 1, board, !isMaximisingPlayer));
@@ -361,7 +364,7 @@ public class Chess
             }
             return bestMove;
         } else {
-            int bestMove = Integer.MAX_VALUE;
+            double bestMove = Double.MAX_VALUE;
             for (int i = 0; i < moves.size(); i++) {
                 board.doMove(moves.get(i));
                 bestMove = Math.min(bestMove, minimax(depth - 1, board, !isMaximisingPlayer));

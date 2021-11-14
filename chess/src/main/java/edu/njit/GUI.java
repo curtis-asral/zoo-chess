@@ -80,8 +80,8 @@ public class GUI{
         @Override
         public void paint(Graphics g){
             boolean green = true;
-            Color grass = new Color(76,153,0);
-            Color dirt = new Color(153,46,0);
+            Color grass = new Color(53,130,74);
+            Color dirt = new Color(105,59,40);
             //Image grass = ImageIO.read(new File("grass.png"));
             //Image dirt = ImageIO.read(new File("dirt.png"));
             //vertical squares
@@ -213,7 +213,6 @@ public class GUI{
         int yp=y/64;
         s += xp + "" + yp;
         
-        System.out.println(s);
         for(GUIPiece p: ps){
             if(p.xp==xp&&p.yp==yp){
                 return p;

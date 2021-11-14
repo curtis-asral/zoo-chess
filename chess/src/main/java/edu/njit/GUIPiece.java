@@ -32,8 +32,6 @@ public class GUIPiece {
     }
     
     public void move(int xp,int yp){
-        //s += xp + "" + yp;
-        //System.out.println(s);
         if (GUI.getGUIPiece(xp*64, yp*64)!=null)
             GUI.kill = getGUIPiece(xp, yp);
         else {
