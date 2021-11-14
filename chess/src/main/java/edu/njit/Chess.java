@@ -5,9 +5,7 @@ import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.move.Move;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.spi.CurrencyNameProvider;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import static javax.swing.JOptionPane.showMessageDialog;
@@ -104,7 +102,7 @@ public class Chess
 
                 }
 
-                String bestMove = minimaxRoot(4, board, false);
+                String bestMove = minimaxRoot(4, board, true);
 
                 board.doMove(bestMove);
 
@@ -117,10 +115,10 @@ public class Chess
 
                 p.move(tc2, tr2);
 
-                if (p.name.equals("king") && tc2-fc2 > 1) {
-                    if (tc == 2)
+                if (p.name.equals("king") && Math.abs(tc2-fc2) > 1) {
+                    if (tc2 == 2)
                         GUIPiece.getGUIPiece(0,0).move(3,0);
-                    if (tc == 6)
+                    if (tc2 == 6)
                         GUIPiece.getGUIPiece(7,0).move(5,0);
                 }
 
@@ -164,9 +162,9 @@ public class Chess
         };
 
         double[][] pawnEvalBlack = new double[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                pawnEvalBlack[i][j] = -1*pawnEvalWhite[i][j];
+        for(int i = 8-1; i >= 0; i--) {
+            for(int j = 8-1; j >= 0; j--) {
+                pawnEvalBlack[8-1-i][8-1-j] = pawnEvalWhite[i][j];
             }
         }
 
@@ -183,12 +181,11 @@ public class Chess
         };
 
         double[][] knightEvalBlack = new double[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                knightEvalBlack[i][j] = -1*knightEvalWhite[i][j];
+        for(int i = 8-1; i >= 0; i--) {
+            for(int j = 8-1; j >= 0; j--) {
+                knightEvalBlack[8-1-i][8-1-j] = knightEvalWhite[i][j];
             }
         }
-
 
         double[][] bishopEvalWhite = 
         {
@@ -203,9 +200,9 @@ public class Chess
         };
 
         double[][] bishopEvalBlack = new double[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                bishopEvalBlack[i][j] = -1*bishopEvalWhite[i][j];
+        for(int i = 8-1; i >= 0; i--) {
+            for(int j = 8-1; j >= 0; j--) {
+                bishopEvalBlack[8-1-i][8-1-j] = bishopEvalWhite[i][j];
             }
         }
 
@@ -222,9 +219,9 @@ public class Chess
         };
 
         double[][] rookEvalBlack = new double[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                rookEvalBlack[i][j] = -1*rookEvalWhite[i][j];
+        for(int i = 8-1; i >= 0; i--) {
+            for(int j = 8-1; j >= 0; j--) {
+                rookEvalBlack[8-1-i][8-1-j] = rookEvalWhite[i][j];
             }
         }
 
@@ -241,9 +238,9 @@ public class Chess
         };
 
         double[][] queenEvalBlack = new double[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                queenEvalBlack[i][j] = -1*queenEvalWhite[i][j];
+        for(int i = 8-1; i >= 0; i--) {
+            for(int j = 8-1; j >= 0; j--) {
+                queenEvalBlack[8-1-i][8-1-j] = queenEvalWhite[i][j];
             }
         }
 
@@ -260,9 +257,9 @@ public class Chess
         };
 
         double[][] kingEvalBlack = new double[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                kingEvalBlack[i][j] = -1*kingEvalWhite[i][j];
+        for(int i = 8-1; i >= 0; i--) {
+            for(int j = 8-1; j >= 0; j--) {
+                kingEvalBlack[8-1-i][8-1-j] = kingEvalWhite[i][j];
             }
         }
 
@@ -279,7 +276,7 @@ public class Chess
             }
             else if (currentBoard[i] == Piece.BLACK_KING) {
                 sum -= 900;
-                sum +=kingEvalBlack[row][col];
+                sum += kingEvalBlack[row][col];
             }
             else if (currentBoard[i] == Piece.BLACK_KNIGHT) {
                 sum -= 30;
@@ -331,15 +328,15 @@ public class Chess
     static String minimaxRoot(int depth, Board board, boolean isMaximisingPlayer) {
 
         List<Move> moves = board.legalMoves();
-        double bestMove = Double.MIN_VALUE;
-        String bestMoveFound = moves.get(0).toString();
+        double bestMove = 9999;
+        String bestMoveFound = "";
     
         for(int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
             board.doMove(move);
-            double value = minimax(depth - 1, board, !isMaximisingPlayer);
+            double value = minimax(depth - 1, board, isMaximisingPlayer,0);
             board.undoMove();
-            if(value >= bestMove) {
+            if(value <= bestMove) {
                 bestMove = value;
                 bestMoveFound = move.toString();
             }
@@ -347,27 +344,26 @@ public class Chess
         return bestMoveFound;
     }
     
-    static int positionCount = 0;
-    static double minimax(int depth, Board board, boolean isMaximisingPlayer) {
+    static double minimax(int depth, Board board, boolean isMaximisingPlayer, int positionCount) {
         positionCount++;
         if (depth == 0)
-            return -1*evaluate(board);
+            return evaluate(board);
     
         List<Move> moves = board.legalMoves();
     
         if (isMaximisingPlayer) {
-            double bestMove = Double.MIN_VALUE;
+            double bestMove = -9999;
             for (int i = 0; i < moves.size(); i++) {
                 board.doMove(moves.get(i));
-                bestMove = Math.max(bestMove, minimax(depth - 1, board, !isMaximisingPlayer));
+                bestMove = Math.max(bestMove, minimax(depth - 1, board, !isMaximisingPlayer, positionCount));
                 board.undoMove();
             }
             return bestMove;
         } else {
-            double bestMove = Double.MAX_VALUE;
+            double bestMove = 9999;
             for (int i = 0; i < moves.size(); i++) {
                 board.doMove(moves.get(i));
-                bestMove = Math.min(bestMove, minimax(depth - 1, board, !isMaximisingPlayer));
+                bestMove = Math.min(bestMove, minimax(depth - 1, board, !isMaximisingPlayer,positionCount));
                 board.undoMove();
             }
             return bestMove;
